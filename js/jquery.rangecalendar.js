@@ -5,9 +5,6 @@
  * Email: angelo@afreeux.com
  */
 
-
-
-
 ;( function( $, window, undefined ) {
 	
 $.fn.rangeCalendar = function(options) {
@@ -29,12 +26,20 @@ $.fn.rangeCalendar = function(options) {
 			trigger: null,
 			changeRangeCallback : function( el, cont, dateProp ) { return false; }
 		};
-	
+    
     var returnObj;
     
+    var getMomentFromString = function (date) {
+        var endYear = date.substring(0, 4);
+        var endMonth = date.substring(4, 6);
+        var endDay = date.substring(6, 8);
+        var m = moment([endYear, endMonth, endDay], "YYYY MM DD");
+
+        return m;
+    }
     
 	this.each(function(i, el) {
-
+	   
 		var obj = el,
               $el = $(el),
               settings = $.extend( true, {},defaults, options );
@@ -88,17 +93,24 @@ $.fn.rangeCalendar = function(options) {
 		},
 		obj.range = function() {
 
-		    var startDateIndex = obj.calendarObj.find('.cell.selected:eq(0)').index();
-		    var endDateIndex = obj.calendarObj.find('.cell.selected').last().index();	
-		    var startDate = moment().add('days', startDateIndex+obj.start);
-		    var startDateFormatted = (startDateIndex>=0 ? moment().add('days', startDateIndex+obj.start).format() : null);
-		    var endDateFormatted = (endDateIndex>=0 ? moment().add('days', endDateIndex+obj.start).format() : null);
+		    var startDateIndex = obj.calendarObj.find('.cell.selected:eq(0)');  
+		    var endDateIndex = obj.calendarObj.find('.cell.selected').last();
+		    var startDateTime = startDateIndex.attr('date-id');
+		    var endDateTime = endDateIndex.attr('date-id');
+            
+		    var realStart = getMomentFromString(startDateTime);
+		    var realEnd = getMomentFromString(endDateTime);
+		    
+		    var startDateFormatted = realStart.toString();
+		    var endDateFormatted = realEnd.toString();
+		    var startDate = moment().add('days', startDateIndex.index() + obj.start);
+		       
 		    var range = $.data( obj, "range", {
 						    	start: startDateFormatted,
 								end: endDateFormatted,
 								width: obj.rangeWidth(),
 								fromNow: startDate.fromNow()     
-						  });
+		    });
 		    return range;
 		},
 		
@@ -116,6 +128,7 @@ $.fn.rangeCalendar = function(options) {
 			
 			var monthCell = obj.monthsObj.find('.cell[month-id="'+monthId+'"]').eq(0);
 			monthCell.trigger("click");
+			
 		},
 		
 		obj.lang = function (){
@@ -136,7 +149,7 @@ $.fn.rangeCalendar = function(options) {
 		
 		obj.update = function() {
 			
-			console.log("update");
+			//console.log("update");
 			moment.lang(obj.lang);
 			obj.setTheme(obj.theme);
 			obj._generateView();
@@ -191,8 +204,7 @@ $.fn.rangeCalendar = function(options) {
 			
 		},
 		
-		
-		
+			
 		obj.didChangeRange = function(e,ui) {
 		    
 		    if(obj.isDragging || $(obj.lastTarget).is(obj.calendarObj)){
@@ -220,8 +232,7 @@ $.fn.rangeCalendar = function(options) {
 		    
 		},
 		
-		
-		
+
 		///////////////////////////////////////////////////////*
 		
 		// PRIVATE METHODS
@@ -238,8 +249,7 @@ $.fn.rangeCalendar = function(options) {
 		    
 		    if(!selectedCell.length)
 			    return;
-		    	
-		    
+		    	    
 		    obj.calendarObj.find(".range-bar").unbind( "resize");
 		    obj.calendarObj.find(".range-bar").remove();
 		    
@@ -256,7 +266,6 @@ $.fn.rangeCalendar = function(options) {
 				});
 		    }
 		    
-
 		    obj.setRangeWidth(rangeWidth);
 		    obj.calendarObj.find(".range-bar").on( "resize", obj.didResizeBar);
 		    
@@ -264,8 +273,6 @@ $.fn.rangeCalendar = function(options) {
 		    
 		},
 		obj._initMonths  = function() {
-		    
-		    
 		    
 		    obj.monthsObj.draggable({ 
 		    	
@@ -284,8 +291,6 @@ $.fn.rangeCalendar = function(options) {
 		          	
 		          	obj.isDragging = true;
 		          	obj.monthsObj.find('.cell').unbind("click");
-		          	
-		          	
 		      	},
 		      	drag: function (e, ui) {
 		      		 
@@ -535,8 +540,6 @@ $.fn.rangeCalendar = function(options) {
 				date.add('days', 1);
 			}
 			
-			
-			
 			return calendarHtml;
 		},
 		obj._getMonthsHTML = function(startDate,endDate) {
@@ -720,10 +723,6 @@ $.fn.rangeCalendar = function(options) {
 			obj._dispatchEvent(obj.changeRangeCallback,obj.range(),obj);
 		}
 		
-		
-
-		
-		
 		obj._init = function( element,options ) {
 			
 			obj.themeContext = options.themeContext;
@@ -748,25 +747,11 @@ $.fn.rangeCalendar = function(options) {
 		
 		obj._init(el,obj.options);
 		$(obj).data('rangeCalendar', obj );
-		
-		
+			
 	});
-	
-	
+
 	return this.data("rangeCalendar");
-	 
-  
 };
 
 } )( jQuery, window );
-
-
-
-
-
-
-
-
-
-
 
